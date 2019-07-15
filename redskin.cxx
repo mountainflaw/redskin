@@ -44,24 +44,13 @@ typedef struct {
     u16 mtx[4][4];
 } RedskinBone;
 
-static void inspect_vtx(aiNode* node, const aiScene* scene) {
-    for (u16 i = 0; i < node->mNumMeshes; i++) {
-        aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        vert += mesh->mNumFaces * 3;
-    }
-
-    for (u16 i = 0; i < node->mNumChildren; i++) {
-        inspect_vtx(node->mChildren[i], scene);
-    }
-}
-
-void redskin_main(const std::string &file, const std::string &fileOut, const s16 scale, const u8 microcode) {
+void redskin_main(const std::string &file, const std::string &fileOut, const std::string &animName, const s16 scale, const u8 microcode) {
     Assimp::Importer importer;
 
     /* We don't use ASSIMP's built in tristripping because of the vertex buffer. */
     const aiScene* scene = importer.ReadFile(file, aiProcess_ValidateDataStructure | aiProcess_Triangulate | aiProcess_PreTransformVertices | aiProcess_GenUVCoords);
 
-    reset_file(fileOut + "/model.s");
+    reset_file(fileOut + "/" + animName + ".c");
     inspect_vtx(scene->mRootNode, scene);
 
     vBuffers = vert / microcode;
@@ -72,6 +61,7 @@ void redskin_main(const std::string &file, const std::string &fileOut, const s16
 
     info_message("Vertices " + std::to_string(vert));
     info_message("Triangles " + std::to_string(vert / 3));
+    info_message("Animation: " + animName);
 
     VertexBuffer vBuf[vBuffers];
     cycle_vbuffers(vBuf, BUFFER, microcode);
