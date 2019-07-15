@@ -1,0 +1,1 @@
+#define REDSKIN_BONE_MAX_VTX 2048
