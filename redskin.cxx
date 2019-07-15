@@ -35,13 +35,14 @@
 #include "../src/modconv.hxx"
 
 #include "../src/buffer.hxx"
+#include "../src/material.hxx"
 #include "../src/f3d.hxx"
 
 #include "redskin.hxx"
 
 typedef struct {
     u16 vtx[REDSKIN_BONE_MAX_VTX][30];
-    u16 mtx[4][4];
+    s16 mtx[4][4];
 } RedskinBone;
 
 void redskin_main(const std::string &file, const std::string &fileOut, const std::string &animName, const s16 scale, const u8 microcode) {
@@ -59,10 +60,14 @@ void redskin_main(const std::string &file, const std::string &fileOut, const std
         vBuffers++;
     }
 
+    VertexBuffer vBuf[vBuffers];
+    cycle_vbuffers(vBuf, BUFFER, microcode);
+    Material mat[scene->mNumMaterials];
+    configure_materials(file, fileOut, mat, scene);
+    setup_vtx(scene->mRootNode, scene, scale, vBuf, file, mat);
+    cycle_vbuffers(vBuf, OPTIMIZE, 0);
+
     info_message("Vertices " + std::to_string(vert));
     info_message("Triangles " + std::to_string(vert / 3));
     info_message("Animation: " + animName);
-
-    VertexBuffer vBuf[vBuffers];
-    cycle_vbuffers(vBuf, BUFFER, microcode);
 }
